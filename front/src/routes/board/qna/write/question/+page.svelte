@@ -1,29 +1,35 @@
 <script>
   import { onMount } from "svelte";
-  import { append, hasContext, is_empty } from "svelte/internal";
+  import { browser } from "$app/env";
+  import { is_empty } from "svelte/internal";
   import Swal from "sweetalert2";
 
   let title = "",
     content = "",
     intag = [],
     tags = [];
-  let ClassicEditor;
   let ckeditorInstance;
 
   onMount(async () => {
-    const module = await import("@ckeditor/ckeditor5-build-classic");
-    ClassicEditor = module.default;
-    ClassicEditor.create(document.querySelector("#editor"))
-      .then((editor) => {
-        ckeditorInstance = editor;
-        console.log(editor);
+    if (browser)
+      ClassicEditor.create(document.querySelector("#editor"), {
+        simpleUpload: {
+          // The URL that the images are uploaded to.
+          uploadUrl: "//api.eyo.kr:8081/upload/",
+
+          // Enable the XMLHttpRequest.withCredentials property.
+          withCredentials: true,
+        },
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((editor) => {
+          ckeditorInstance = editor;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
   });
 
-  const postArticle = () => 
+  const postArticle = () =>
     fetch(`//api.eyo.kr:8081/board/qna/question`, {
       method: "POST",
       headers: {
@@ -80,10 +86,8 @@
   };
 
   // 태그 가져오기
-  const getTags = async() => {
-    const res = await fetch(
-      `//api.eyo.kr:8081/board/tag/list`,
-      {
+  const getTags = async () => {
+    const res = await fetch(`//api.eyo.kr:8081/board/tag/list`, {
       mode: "cors",
       credentials: "include",
     });
@@ -96,6 +100,10 @@
   };
   $: boardtags = getTags();
 </script>
+
+<svelte:head>
+  <script src="/ckeditor.js"></script>
+</svelte:head>
 
 <!-- 글작성 페이지-->
 <form action="POST" on:submit|preventDefault={upload}>
@@ -134,13 +142,18 @@
         {#await boardtags then picktags}
           {#each picktags as tag}
             {#if tags.includes(tag)}
-            <div class="dropdown-item">
-              {tag.name}
-            </div>
+              <div class="dropdown-item">
+                {tag.name}
+              </div>
             {:else}
-            <div class="dropdown-item" on:click={() => {tags[tags.length] = tag}}>
-              {tag.name}
-            </div>
+              <div
+                class="dropdown-item"
+                on:click={() => {
+                  tags[tags.length] = tag;
+                }}
+              >
+                {tag.name}
+              </div>
             {/if}
           {/each}
         {:catch error}
@@ -152,7 +165,12 @@
     <div class="tags has-addons tag-add">
       {#each tags as tag}
         <span class="tag is-info">{tag.name}</span>
-        <div class="tag is-delete" on:click={() => {tags = tags.filter(x => x.slug != tag.slug)}} />
+        <div
+          class="tag is-delete"
+          on:click={() => {
+            tags = tags.filter((x) => x.slug != tag.slug);
+          }}
+        />
       {/each}
       <!--{#each picktags as tag}
         <span class="tag is-info" on:click={console.log(picktags.has(tag))}>{tag}</span>
@@ -163,15 +181,15 @@
 
   <br /><br /><br />
 
-  {#if is_empty(title)}
-    <button class="button is-success" on:click={alt}>작성</button>
-  {:else}
-    <a href="/board/qna/1">
-      <button class="button is-success" type="submit" on:click={upload}>
-        작성
-      </button>
-    </a>
-  {/if}
+  <a href="/board/qna/1">
+    <button
+      class="button is-success"
+      type="submit"
+      on:click={is_empty(title) ? alt : upload}
+    >
+      작성
+    </button>
+  </a>
   <a href="/board/qna/1">
     <button class="button is-danger">삭제</button>
   </a>

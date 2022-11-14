@@ -1,29 +1,30 @@
 <script>
   import { onMount } from "svelte";
+  import { browser } from "$app/env";
   import { page } from "$app/stores";
+  import { is_empty } from "svelte/internal";
   import Swal from "sweetalert2";
   let article_data = { title: "", content: "" };
 
-  let ClassicEditor;
+  // let ClassicEditor;
   let ckeditorInstance;
   onMount(async () => {
-    const module = await import("@ckeditor/ckeditor5-build-classic");
-    ClassicEditor = module.default;
-    ClassicEditor.create(document.querySelector("#editor"), {
-      simpleUpload: {
-        // The URL that the images are uploaded to.
-        uploadUrl: "//api.eyo.kr:8081/upload/",
+    if (browser)
+      ClassicEditor.create(document.querySelector("#editor"), {
+        simpleUpload: {
+          // The URL that the images are uploaded to.
+          uploadUrl: "//api.eyo.kr:8081/upload/",
 
-        // Enable the XMLHttpRequest.withCredentials property.
-        withCredentials: true,
-      },
-    })
-      .then((editor) => {
-        ckeditorInstance = editor;
+          // Enable the XMLHttpRequest.withCredentials property.
+          withCredentials: true,
+        },
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((editor) => {
+          ckeditorInstance = editor;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
   });
 
   const getArticle = async (article_id) => {
@@ -49,22 +50,19 @@
   let article = getArticle($page.params.id);
 
   const putArticle = async (article_id) => {
-    const res = await fetch(
-      `//api.eyo.kr:8081/board/free/update/${article_id}`,
-      {
-        method: "PUT",
-        headers: {
-          Aceept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: article_data.title,
-          content: ckeditorInstance.getData(),
-        }),
-        mode: "cors",
-        credentials: "include",
-      }
-    )
+    await fetch(`//api.eyo.kr:8081/board/free/update/${article_id}`, {
+      method: "PUT",
+      headers: {
+        Aceept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: article_data.title,
+        content: ckeditorInstance.getData(),
+      }),
+      mode: "cors",
+      credentials: "include",
+    })
       .then((res) => {
         if (res.ok == false) return Promise.reject(res);
         return res.json();
@@ -119,7 +117,18 @@
       }
     });
   };
+  const alt = () => {
+    Swal.fire({
+      title: "제목을 입력해주세요",
+      icon: "error",
+      confirmButtonText: "확인",
+    });
+  };
 </script>
+
+<svelte:head>
+  <script src="/ckeditor.js"></script>
+</svelte:head>
 
 <br />
 
@@ -140,8 +149,11 @@
     >
     <hr />
   </div>
-
-  <button class="button is-link" type="submit" on:click={upload}>완료</button>
+  <button
+    class="button is-link"
+    type="submit"
+    on:click={is_empty(article_data.title) ? alt : upload}>완료</button
+  >
   <a href="/board/free/article/{$page.params.id}">
     <button class="button is-link is-light" type="button">취소</button>
   </a>

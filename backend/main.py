@@ -9,6 +9,7 @@ import board.qna
 import board.tag
 import study
 import upload
+import run
 
 app = FastAPI(title="kuku-api")
 app.include_router(user.router)
@@ -17,6 +18,7 @@ app.include_router(board.qna.router)
 app.include_router(board.tag.router)
 app.include_router(study.router)
 app.include_router(upload.router)
+app.include_router(run.router)
 
 origins = [
     "http://local.eyo.kr:5173",

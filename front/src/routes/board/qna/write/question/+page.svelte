@@ -141,9 +141,9 @@
       <div class="dropdown-content">
         {#await boardtags then picktags}
           {#each picktags as tag}
-            {#if tags.includes(tag)}
+            {#if tags.includes(tag.slug)}
               <div class="dropdown-item">
-                {tag.name}
+                {tag.slug}
               </div>
             {:else}
               <div

@@ -1,5 +1,7 @@
 <script>
-	const async_course_list = fetch(`//api.eyo.kr:8081/study/head-chapters`, {
+	import env from "$lib/env.js";
+
+	const async_course_list = fetch(`${env.baseUrl}/study/head-chapters/`, {
 		method: "GET",
 		headers: {
 			Accept: "application/json",
@@ -38,11 +40,16 @@
 								</h1>
 							</header>
 							<div class="card-content content">
-								<h4 class="subtitle mb-1">{item.title}</h4>
-								<span class="tag mb-4">{item.category}</span>
-								<div class="chapter-description content">
-									{item.content}
-								</div>
+								<h4 class="subtitle mb-4">{item.title}</h4>
+								{#if item.category != ""}
+									<span class="tag mr-1 is-dark"
+										>{item.category}</span
+									>
+								{/if}
+								{#each item.supported_languages as lang}
+									<span class="tag mr-1 is-light">{lang}</span
+									>
+								{/each}
 							</div>
 						</div></a
 					>

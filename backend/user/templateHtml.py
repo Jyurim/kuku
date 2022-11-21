@@ -61,7 +61,9 @@ def emailTemplate(token: str) -> str:
 
         </html>
         """
-def successTemplate(name : str) -> str :
+
+
+def successTemplate(name: str) -> str:
     return f"""
         <!DOCTYPE html>
         <html>
@@ -125,7 +127,8 @@ def successTemplate(name : str) -> str :
         </html>
         """
 
-def failTemplate() ->str:
+
+def failTemplate() -> str:
     return f"""
         <!DOCTYPE html>
         <html>

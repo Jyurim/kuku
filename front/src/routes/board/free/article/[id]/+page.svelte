@@ -139,7 +139,6 @@
     });
   };
   let isLogin = true;
-
   let comment_content = "";
   const create_comment = async (article_id) => {
     return await fetch(

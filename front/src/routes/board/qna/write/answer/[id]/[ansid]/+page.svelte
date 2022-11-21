@@ -53,15 +53,14 @@
       }),
       mode: "cors",
       credentials: "include",
-    }
-  )
-    .then((res) => {
-      if (res.ok == false) return Promise.reject(res);
-      return res.json();
     })
-    .catch((err) => {
+      .then((res) => {
+        if (res.ok == false) return Promise.reject(res);
+        return res.json();
+      })
+      .catch((err) => {
         console.log(err);
-    });
+      });
   };
 
   const upload = () => {
@@ -113,18 +112,19 @@
       <div class="write__form__title" style="margin-top: 2px;">
         <h1>A</h1>
         <input
-            class="input mb-4"
-            id="title"
-            placeholder="제목을 입력해주세요."
-            bind:value={answer_data.title}
-            required
-          />
+          class="input mb-4"
+          id="title"
+          placeholder="제목을 입력해주세요."
+          bind:value={answer_data.title}
+          required
+        />
         <div class="write__form__content">
           <textarea
             class="textarea"
             id="editor"
             placeholder="답변을 입력해주세요."
-            required>{answer_data.content}</textarea>
+            required>{answer_data.content}</textarea
+          >
         </div>
       </div>
     </form>
@@ -135,7 +135,7 @@
 
 <div class="buttons">
   <button class="button is-success" type="submit" on:click={upload}>
-      작성
+    작성
   </button>
   <a href="/board/qna/article/{$page.params.id}">
     <button class="button is-danger">취소</button>

@@ -73,15 +73,8 @@
 		}
 	};
 
-	let timer = 0;
 	let isLoading = false;
 	let message = "";
-	/*backend api 생성 후 이걸로 변경*/
-	//sleep 함수 제거 후
-	// await sleep(1000).then((value)=>{
-	//		usernameFailed = false;
-	//		loading = false;
-	//	}) 이걸 await fetch ('http://~') 이걸로 변경하면 됩니다.
 
 	const postUser = async () => {
 		isLoading = true;

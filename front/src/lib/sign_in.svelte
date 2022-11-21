@@ -37,7 +37,10 @@
 							"user.email",
 							json["email"]
 						);
-						window.sessionStorage.setItem("user.id", json["userid"]);
+						window.sessionStorage.setItem(
+							"user.id",
+							json["userid"]
+						);
 						window.sessionStorage.setItem(
 							"user.username",
 							json["username"]

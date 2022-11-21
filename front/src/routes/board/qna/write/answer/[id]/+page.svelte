@@ -22,7 +22,7 @@
       });
   });
 
-  const postArticle = () => 
+  const postArticle = () =>
     fetch(`//api.eyo.kr:8081/board/qna/answer`, {
       method: "POST",
       headers: {
@@ -85,18 +85,19 @@
       <div class="write__form__title" style="margin-top: 2px;">
         <h1>A</h1>
         <input
-            class="input mb-4"
-            id="title"
-            placeholder="제목을 입력해주세요."
-            bind:value={title}
-            required
-          />
+          class="input mb-4"
+          id="title"
+          placeholder="제목을 입력해주세요."
+          bind:value={title}
+          required
+        />
         <div class="write__form__content">
           <textarea
             class="textarea"
             id="editor"
             placeholder="답변을 입력해주세요."
-            required>{content}</textarea>
+            required>{content}</textarea
+          >
         </div>
       </div>
     </form>
@@ -114,9 +115,9 @@
     </button>
   </a>
 {/if}
-  <a href="/board/qna/article/{$page.params.id}">
-    <button class="button is-danger">취소</button>
-  </a>
+<a href="/board/qna/article/{$page.params.id}">
+  <button class="button is-danger">취소</button>
+</a>
 
 <br /><br />
 

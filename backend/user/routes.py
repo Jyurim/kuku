@@ -10,7 +10,8 @@ from uuid import UUID, uuid4
 from utils.session import *
 from fastapi.responses import HTMLResponse
 from . import templateHtml
-from result import Result, Ok, Err
+from result import Result, Ok, Err, as_result
+
 router = APIRouter(
     prefix="/user",
     tags=["user"],
@@ -43,14 +44,14 @@ async def create_session(
     response: Response,
     session: Session = Depends(utils.database.get_db),
 ):
-    uid = database.login(user, session).map_err(throwMsg).unwrap()
+    user_data = database.login(user, session).map_err(throwMsg).unwrap()
     uuidSession = uuid4()
-    data = SessionData(uid=uid)
+    data = SessionData(**user_data.dict())
 
-    await backend.create(uuidSession, data)
+    await sessionStorage.create(uuidSession, data)
     cookie.attach_to_response(response, uuidSession)
 
-    return database.get_user_by_uid(uid, session).map_err(throwMsg).unwrap()
+    return database.get_user_by_uid(user_data.uid, session).map_err(throwMsg).unwrap()
 
 
 @router.get("/whoami", dependencies=[Depends(cookie)])
@@ -86,35 +87,39 @@ async def delete_user(
 
 @router.post("/logout")
 async def del_session(response: Response, session_id: UUID = Depends(cookie)):
-    await backend.delete(session_id)
+    if session_id in sessionStorage.data:
+        await sessionStorage.delete(session_id)
+
     cookie.delete_from_response(response)
     return "deleted session"
 
-#send email request
-@router.post("/sendEmailBySesson",dependencies=[Depends(cookie)])
+
+# send email request
+@router.post("/sendEmailBySesson", dependencies=[Depends(cookie)])
 async def send_email(
     session_data: SessionData = Depends(verifier),
     session: Session = Depends(utils.database.get_db),
 ):
     return (
-        database.emailCertification(session,session_data.uid).map_err(throwMsg).unwrap()
+        database.emailCertification(session, session_data.uid)
+        .map_err(throwMsg)
+        .unwrap()
     )
 
-#send email request
+
+# send email request
 @router.post("/sendEmailByEmail/{email}")
-async def send_email(
-    email : str,
-    session: Session = Depends(utils.database.get_db)
-):
-    return (
-        database.emailCertificationByEmail(session,email).map_err(throwMsg).unwrap()
-    )
+async def send_email(email: str, session: Session = Depends(utils.database.get_db)):
+    return database.emailCertificationByEmail(session, email).map_err(throwMsg).unwrap()
+
 
 @router.get("/emailConfirm")
-async def email_confirm(token: str,session: Session = Depends(utils.database.get_db)):
-    result= database.emailConform(token,session)
+async def email_confirm(token: str, session: Session = Depends(utils.database.get_db)):
+    result = database.emailConform(token, session)
     if isinstance(result, Ok):
-        return HTMLResponse(content=templateHtml.successTemplate(result.unwrap()), status_code=200)
+        return HTMLResponse(
+            content=templateHtml.successTemplate(result.unwrap()), status_code=200
+        )
     else:
         return HTMLResponse(content=templateHtml.failTemplate(), status_code=200)
 
